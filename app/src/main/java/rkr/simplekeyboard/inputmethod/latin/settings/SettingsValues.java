@@ -65,6 +65,8 @@ public class SettingsValues {
     public final String mAiApiKey;
     public final String mAiModel;
     public final String mAiSystemPrompt;
+    public final boolean mAdaptiveTouchEnabled;
+    public final String mAdaptiveTouchLevel;
 
     // From the input box
     public final InputAttributes mInputAttributes;
@@ -123,6 +125,8 @@ public class SettingsValues {
         mAiApiKey = Settings.readAiApiKey(prefs);
         mAiModel = Settings.readAiModel(prefs);
         mAiSystemPrompt = Settings.readAiSystemPrompt(prefs);
+        mAdaptiveTouchEnabled = Settings.readAdaptiveTouchEnabled(prefs);
+        mAdaptiveTouchLevel = Settings.readAdaptiveTouchLevel(prefs);
     }
 
     public boolean isWordSeparator(final int code) {

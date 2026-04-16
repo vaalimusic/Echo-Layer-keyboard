@@ -96,6 +96,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private static final int EXTENDED_TOUCHABLE_REGION_HEIGHT = 100;
     private static final int PERIOD_FOR_AUDIO_AND_HAPTIC_FEEDBACK_IN_KEY_REPEAT = 2;
     private static final int PENDING_IMS_CALLBACK_DURATION_MILLIS = 800;
+    private static final long INVISIBLE_LOCK_ARM_TIMEOUT_MILLIS = 1800L;
     static final long DELAY_DEALLOCATE_MEMORY_MILLIS = TimeUnit.SECONDS.toMillis(10);
     private static final String PREF_PENDING_DECODED_TEXT = "pref_pending_decoded_text_internal";
 
@@ -111,10 +112,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private InvisibleMessageController mInvisibleMessageController;
     private final CandidateStripController mCandidateStripController =
             new CandidateStripControllerImpl(this);
-    private final SuggestionCandidateSource mSuggestionCandidateSource =
-            new SuggestionCandidateSource();
-    private final CandidatePresentationCoordinator mCandidatePresentationCoordinator =
-            new CandidatePresentationCoordinator(mCandidateStripController, mSuggestionCandidateSource);
+    private SuggestionCandidateSource mSuggestionCandidateSource;
+    private UserWordHistoryStore mUserWordHistoryStore;
+    private CandidatePresentationCoordinator mCandidatePresentationCoordinator;
     private CharSequence mPendingDecodedCandidate;
     private boolean mIsHidingIme;
     private final Runnable mAutoDecodeInputFieldRunnable = () -> {
@@ -130,6 +130,9 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private final AiRewriteClient mAiRewriteClient = new AiRewriteClient();
     private final ExecutorService mAiExecutor = Executors.newSingleThreadExecutor();
     private boolean mAiRewriteInProgress;
+    private boolean mInvisibleLockArmed;
+    private final Runnable mInvisibleLockArmTimeoutRunnable = () ->
+            cancelInvisibleLockArming(true);
 
     private AlertDialog mOptionsDialog;
     private AlertDialog mEmojiMarkerDialog;
@@ -300,6 +303,10 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         // TODO: Resolve mutual dependencies of {@link #loadSettings()} and
         // {@link #resetDictionaryFacilitatorIfNecessary()}.
         loadSettings();
+        mSuggestionCandidateSource = new SuggestionCandidateSource(this);
+        mUserWordHistoryStore = new UserWordHistoryStore(this);
+        mCandidatePresentationCoordinator = new CandidatePresentationCoordinator(
+                mCandidateStripController, mSuggestionCandidateSource);
         mInvisibleMessageController = new InvisibleMessageController(this,
                 PreferenceManagerCompat.getDeviceSharedPreferences(this));
         mClipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -542,6 +549,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void onWindowHidden() {
         super.onWindowHidden();
+        cancelInvisibleLockArming(false);
         mIsHidingIme = false;
         mHandler.removeCallbacks(mAutoDecodeInputFieldRunnable);
         dismissEmojiMarkerDialog();
@@ -554,6 +562,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     void onFinishInputInternal() {
         super.onFinishInput();
+        cancelInvisibleLockArming(false);
 
         final MainKeyboardView mainKeyboardView = mKeyboardSwitcher.getMainKeyboardView();
         if (mainKeyboardView != null) {
@@ -563,6 +572,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     void onFinishInputViewInternal(final boolean finishingInput) {
         super.onFinishInputView(finishingInput);
+        cancelInvisibleLockArming(false);
         mIsHidingIme = false;
         mHandler.removeCallbacks(mAutoDecodeInputFieldRunnable);
         dismissEmojiMarkerDialog();
@@ -599,6 +609,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void hideWindow() {
+        cancelInvisibleLockArming(false);
         mIsHidingIme = false;
         mKeyboardSwitcher.onHideWindow();
         mHandler.removeCallbacks(mAutoDecodeInputFieldRunnable);
@@ -775,6 +786,11 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         queuePendingDecodedCandidate(decodedText);
     }
 
+    public boolean tryDeleteEncodedMessageFast() {
+        return mInvisibleMessageController != null
+                && mInvisibleMessageController.tryDeleteEncodedMessageAtCursor();
+    }
+
     public void showInvisibleErrorOverlay(final CharSequence message) {
         if (TextUtils.isEmpty(message)) {
             clearCandidateStrip();
@@ -801,6 +817,30 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
         mCandidatePresentationCoordinator.clear();
         mCandidateStripController.clear();
         setCandidatesViewShown(false);
+    }
+
+    private void handleInvisibleLockPress() {
+        if (mInvisibleLockArmed) {
+            cancelInvisibleLockArming(false);
+            mInvisibleMessageController.handleQuickLockPress();
+            return;
+        }
+        mInvisibleLockArmed = true;
+        mHandler.removeCallbacks(mInvisibleLockArmTimeoutRunnable);
+        mHandler.postDelayed(mInvisibleLockArmTimeoutRunnable,
+                INVISIBLE_LOCK_ARM_TIMEOUT_MILLIS);
+        showInvisibleStatusOverlay(getString(R.string.invisible_status_lock_armed));
+    }
+
+    private void cancelInvisibleLockArming(final boolean clearOverlay) {
+        if (!mInvisibleLockArmed) {
+            return;
+        }
+        mInvisibleLockArmed = false;
+        mHandler.removeCallbacks(mInvisibleLockArmTimeoutRunnable);
+        if (clearOverlay) {
+            clearCandidateStrip();
+        }
     }
 
     public boolean tryHandleAiRewriteBeforeEditorAction(final int actionId,
@@ -918,13 +958,86 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
                 || TextUtils.isEmpty(item.actionText)) {
             return;
         }
+        final String committedWord = item.actionText.toString();
+        mUserWordHistoryStore.recordWord(committedWord);
+        final String beforeCursor = mInputLogic.mConnection.getTextBeforeCursorCache();
+        final int cachedTextStart = mInputLogic.mConnection.getCachedTextStart();
+        if (!TextUtils.isEmpty(beforeCursor) && cachedTextStart >= 0) {
+            final int previousWordSearchEnd = Math.max(0, item.replacementStart - cachedTextStart);
+            final SuggestionWordUtils.WordContext previousWord = SuggestionWordUtils.getPreviousWord(
+                    beforeCursor, previousWordSearchEnd, cachedTextStart);
+            if (previousWord != null && !TextUtils.isEmpty(previousWord.word)) {
+                mUserWordHistoryStore.recordNextWord(previousWord.word, committedWord);
+            }
+        }
+        final CharSequence suggestionText = buildSuggestionCommitText(item.actionText);
         mCandidatePresentationCoordinator.clear();
         setCandidatesViewShown(false);
         if (mInputLogic.mConnection.replaceTextRange(
-                item.replacementStart, item.replacementEnd, item.actionText)) {
+                item.replacementStart, item.replacementEnd, suggestionText)) {
             reloadInvisibleTextCache();
         } else {
             clearCandidateStrip();
+        }
+    }
+
+    private CharSequence buildSuggestionCommitText(final CharSequence suggestionText) {
+        if (TextUtils.isEmpty(suggestionText) || !shouldAppendSpaceAfterSuggestion(suggestionText)) {
+            return suggestionText;
+        }
+        return suggestionText + " ";
+    }
+
+    private boolean shouldAppendSpaceAfterSuggestion(final CharSequence suggestionText) {
+        final String afterCursor = mInputLogic.mConnection.getTextAfterCursorCache();
+        if (TextUtils.isEmpty(afterCursor)) {
+            return true;
+        }
+        final char nextChar = afterCursor.charAt(0);
+        if (Character.isWhitespace(nextChar)) {
+            return false;
+        }
+        if (Character.isLetterOrDigit(nextChar)) {
+            return true;
+        }
+        if (endsWithPunctuation(suggestionText)) {
+            return false;
+        }
+        return !mSettings.getCurrent().isWordSeparator(nextChar);
+    }
+
+    private static boolean endsWithPunctuation(final CharSequence text) {
+        if (TextUtils.isEmpty(text)) {
+            return false;
+        }
+        final char lastChar = text.charAt(text.length() - 1);
+        return lastChar == ',' || lastChar == '.' || lastChar == '!' || lastChar == '?'
+                || lastChar == ';' || lastChar == ':';
+    }
+
+    private void maybeLearnCurrentWordBeforeSeparator(final int codePoint) {
+        if (codePoint <= 0 || !mSettings.getCurrent().isWordSeparator(codePoint)
+                || mInputLogic.mConnection.hasSelection()) {
+            return;
+        }
+        final String beforeCursor = mInputLogic.mConnection.getTextBeforeCursorCache();
+        final int cachedTextStart = mInputLogic.mConnection.getCachedTextStart();
+        final SuggestionWordUtils.WordContext wordContext = SuggestionWordUtils.getCurrentWord(
+                beforeCursor,
+                mInputLogic.mConnection.getTextAfterCursorCache(),
+                cachedTextStart);
+        if (wordContext != null && !TextUtils.isEmpty(wordContext.word)) {
+            mUserWordHistoryStore.recordWord(wordContext.word);
+            mUserWordHistoryStore.recordWordWithPunctuation(wordContext.word, codePoint);
+            if (!TextUtils.isEmpty(beforeCursor) && cachedTextStart >= 0) {
+                final int currentWordStartInBefore = Math.max(0, wordContext.start - cachedTextStart);
+                final SuggestionWordUtils.WordContext previousWord =
+                        SuggestionWordUtils.getPreviousWord(beforeCursor,
+                                currentWordStartInBefore, cachedTextStart);
+                if (previousWord != null && !TextUtils.isEmpty(previousWord.word)) {
+                    mUserWordHistoryStore.recordNextWord(previousWord.word, wordContext.word);
+                }
+            }
         }
     }
 
@@ -1145,14 +1258,20 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     @Override
     public void onCodeInput(final int codePoint, final int x, final int y,
             final boolean isKeyRepeat) {
+        maybeLearnCurrentWordBeforeSeparator(codePoint);
+        if (codePoint != Constants.CODE_INVISIBLE_LOCK
+                && codePoint != Constants.CODE_INVISIBLE_MENU) {
+            cancelInvisibleLockArming(false);
+        }
         if (codePoint != Constants.CODE_INVISIBLE_MENU) {
             clearCandidateStrip();
         }
         if (codePoint == Constants.CODE_INVISIBLE_LOCK) {
-            mInvisibleMessageController.handleQuickLockPress();
+            handleInvisibleLockPress();
             return;
         }
         if (codePoint == Constants.CODE_INVISIBLE_MENU) {
+            cancelInvisibleLockArming(false);
             mInvisibleMessageController.showLockMenu();
             return;
         }
@@ -1194,6 +1313,7 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     // Called from PointerTracker through the KeyboardActionListener interface
     @Override
     public void onTextInput(final String rawText) {
+        cancelInvisibleLockArming(false);
         clearCandidateStrip();
         // TODO: have the keyboard pass the correct key code when we need it.
         final Event event = Event.createSoftwareTextEvent(rawText, Constants.CODE_OUTPUT_TEXT);

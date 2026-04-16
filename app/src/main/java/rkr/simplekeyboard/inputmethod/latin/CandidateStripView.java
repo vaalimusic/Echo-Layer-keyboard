@@ -2,6 +2,7 @@ package rkr.simplekeyboard.inputmethod.latin;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -77,12 +78,20 @@ public final class CandidateStripView extends LinearLayout {
             final LayoutParams params = (LayoutParams) view.getLayoutParams();
             if (index < count) {
                 final CandidateItem item = mItems.get(index);
-                params.width = 0;
-                params.weight = 1.0f;
+                if (count == 1) {
+                    params.width = LayoutParams.MATCH_PARENT;
+                    params.weight = 0.0f;
+                } else {
+                    params.width = 0;
+                    params.weight = 1.0f;
+                }
                 view.setLayoutParams(params);
                 view.setText(item.displayText);
                 view.setVisibility(View.VISIBLE);
                 view.setGravity(Gravity.CENTER);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    view.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+                }
                 view.setTextColor(mNormalTextColor);
                 view.setTextSize(TypedValue.COMPLEX_UNIT_PX, mCandidateTextSizePx);
                 view.setOnClickListener(v -> {

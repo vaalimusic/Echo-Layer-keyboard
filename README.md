@@ -57,6 +57,14 @@ Echo Layer is a privacy-focused Android keyboard built on top of the AOSP LatinI
 - AI rewriting depends on the provider you configure and your network reachability to that provider.
 - Ollama on a local network usually needs an address like `http://192.168.x.x:11434`.
 
+## Version History
+
+### 1.5.0
+- Rebranded versioning system
+- Major cleanup and fixes for Russian localization
+- Improved settings UI with version display
+- General stability improvements for IME handlers
+
 ## License
 
 Echo Layer is distributed under the Apache License 2.0.

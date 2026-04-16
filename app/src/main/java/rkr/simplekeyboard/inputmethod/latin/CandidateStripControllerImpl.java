@@ -84,6 +84,9 @@ final class CandidateStripControllerImpl implements CandidateStripController {
         if (view != null) {
             view.setOnCandidateItemClickListener(this::handleItemClick);
             view.clearItems();
+            if (view == mView) {
+                view.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -100,13 +103,14 @@ final class CandidateStripControllerImpl implements CandidateStripController {
         final boolean hasItems = items != null && !items.isEmpty();
         if (isFallback) {
             view.setVisibility(View.VISIBLE);
-        } else {
-            view.setVisibility(hasItems ? View.VISIBLE : View.GONE);
-        }
-        if (hasItems) {
-            view.setItems(items);
+            if (hasItems) {
+                view.setItems(items);
+            } else {
+                view.clearItems();
+            }
         } else {
             view.clearItems();
+            view.setVisibility(View.GONE);
         }
     }
 

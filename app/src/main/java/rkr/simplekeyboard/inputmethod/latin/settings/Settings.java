@@ -82,6 +82,8 @@ public final class Settings extends BroadcastReceiver implements SharedPreferenc
     public static final String PREF_AI_API_KEY = "pref_ai_api_key";
     public static final String PREF_AI_MODEL = "pref_ai_model";
     public static final String PREF_AI_SYSTEM_PROMPT = "pref_ai_system_prompt";
+    public static final String PREF_ADAPTIVE_TOUCH_ENABLED = "pref_adaptive_touch_enabled";
+    public static final String PREF_ADAPTIVE_TOUCH_LEVEL = "pref_adaptive_touch_level";
 
     private static final float UNDEFINED_PREFERENCE_VALUE_FLOAT = -1.0f;
     private static final int UNDEFINED_PREFERENCE_VALUE_INT = -1;
@@ -179,6 +181,7 @@ public final class Settings extends BroadcastReceiver implements SharedPreferenc
                     case PREF_INVISIBLE_CLIPBOARD_POPUP:
                     case PREF_AI_ENABLED:
                     case PREF_AI_REWRITE_ON_SEND:
+                    case PREF_ADAPTIVE_TOUCH_ENABLED:
                     case PREF_VIBRATE_ON:
                     case PREF_SOUND_ON:
                     case PREF_POPUP_ON:
@@ -217,6 +220,7 @@ public final class Settings extends BroadcastReceiver implements SharedPreferenc
                     case PREF_AI_API_KEY:
                     case PREF_AI_MODEL:
                     case PREF_AI_SYSTEM_PROMPT:
+                    case PREF_ADAPTIVE_TOUCH_LEVEL:
                         Log.i(TAG, "Loading restriction: " + key + "=" + appRestrictions.getString(key));
                         prefsEditor.putString(key, appRestrictions.getString(key));
                         break;
@@ -352,6 +356,14 @@ public final class Settings extends BroadcastReceiver implements SharedPreferenc
                 : "";
         final String value = prefs.getString(PREF_AI_SYSTEM_PROMPT, defaultPrompt);
         return value == null || value.trim().isEmpty() ? defaultPrompt : value;
+    }
+
+    public static boolean readAdaptiveTouchEnabled(final SharedPreferences prefs) {
+        return prefs.getBoolean(PREF_ADAPTIVE_TOUCH_ENABLED, false);
+    }
+
+    public static String readAdaptiveTouchLevel(final SharedPreferences prefs) {
+        return prefs.getString(PREF_ADAPTIVE_TOUCH_LEVEL, "balanced");
     }
 
     public static String readPrefSubtypes(final SharedPreferences prefs) {

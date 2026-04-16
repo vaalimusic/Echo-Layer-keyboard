@@ -18,6 +18,8 @@
 
 package rkr.simplekeyboard.inputmethod.keyboard;
 
+import android.content.Context;
+
 /**
  * This class handles key detection.
  */
@@ -78,6 +80,11 @@ public class KeyDetector {
 
     public boolean alwaysAllowsKeySelectionByDraggingFinger() {
         return false;
+    }
+
+    public void recordAcceptedKey(final Context context, final Key key, final int x, final int y,
+            final boolean autoCorrected) {
+        // Default no-op.
     }
 
     /**

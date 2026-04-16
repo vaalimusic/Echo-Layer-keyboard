@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="pref_adaptive_touch_enabled"
+        android:title="@string/adaptive_touch_enabled_title"
+        android:summary="@string/adaptive_touch_enabled_summary"
+        android:defaultValue="false" />
+    <ListPreference
+        android:key="pref_adaptive_touch_level"
+        android:title="@string/adaptive_touch_level_title"
+        android:entries="@array/adaptive_touch_level_entries"
+        android:entryValues="@array/adaptive_touch_level_values"
+        android:defaultValue="balanced" />
+    <Preference
+        android:key="pref_adaptive_touch_map"
+        android:title="@string/adaptive_touch_map_title"
+        android:summary="@string/adaptive_touch_map_summary" />
+    <Preference
+        android:key="pref_adaptive_touch_reset"
+        android:title="@string/adaptive_touch_reset_title"
+        android:summary="@string/adaptive_touch_reset_summary" />
+</PreferenceScreen>

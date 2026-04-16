@@ -26,7 +26,7 @@
     <string name="settings_screen_key_press">Нажатие клавиши</string>
     <string name="settings_screen_appearance">Внешний вид</string>
     <string name="settings_screen_theme">"Тема"</string>
-    <string name="abbreviation_unit_milliseconds">"<xliff:g id="MILLISECONDS">%s</xliff:g> мс"</string>
+    <string name="abbreviation_unit_milliseconds">"<xliff:g id="MILLISECONDS">%s</xliff:g> мс"</string>
     <string name="settings_system_default">"По умолчанию"</string>
     <string name="auto_cap">"Заглавные автоматически"</string>
     <string name="auto_cap_summary">"Писать первое слово предложения с прописной буквы"</string>
@@ -55,11 +55,11 @@
     <string name="show_number_row">Показать ряд цифр</string>
     <string name="space_swipe">Перемещать курсор пробелом</string>
     <string name="delete_swipe">Удалить смахиванием</string>
-    <string name="setup_message">Simple Keyboard не включена. Нажмите «ОК», чтобы выбрать языки в настройках ввода. Вам нужно будет выбрать Simple Keyboard текущей клавиатурой, чтобы использовать её.</string>
-    <string name="user_languages">Включённые языки</string>
+    <string name="setup_message">Echo Layer не включена. Нажмите «ОК», чтобы открыть настройки «Языки и ввод». Затем выберите Echo Layer в качестве текущей клавиатуры.</string>
+    <string name="user_languages">Включенные языки клавиатуры</string>
     <string name="add_language">Добавить язык</string>
     <string name="remove_language">Удалить язык</string>
-    <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> раскладка клавиатуры</string>
+    <string name="generic_language_layouts"><xliff:g id="LANGUAGE_NAME" example="English (US)">%s</xliff:g> раскладки клавиатуры</string>
     <string name="change_keyboard">Сменить клавиатуру</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="license">Лицензия</string>
@@ -98,18 +98,19 @@
     <string name="invisible_status_encoding">Шифрую сообщение…</string>
     <string name="invisible_status_compressing">Сжимаю длинное сообщение…</string>
     <string name="invisible_status_compact_mode">Переключаю в компактный режим для безопасной отправки…</string>
+    <string name="invisible_status_lock_armed">Lock активирован. Нажми еще раз для шифрования.</string>
     <string name="invisible_decode_not_found">Скрытый payload не найден</string>
     <string name="invisible_decode_failed">Не удалось декодировать с текущей кодовой фразой</string>
     <string name="invisible_error_generic">Не удалось выполнить invisible-действие</string>
     <string name="invisible_message_too_large">Скрытое сообщение слишком большое для безопасной отправки в этом чате</string>
     <string name="invisible_target_partial">Небезопасно кодировать только часть длинного сообщения. Сначала выдели текст целиком.</string>
-    <string name="invisible_mode_switched">Режим invisible изменён</string>
+    <string name="invisible_mode_switched">Режим invisible изменен</string>
     <string name="invisible_panic_done">Invisible-данные очищены</string>
     <string name="invisible_passphrase_dialog_title">Общая кодовая фраза</string>
     <string name="invisible_cover_templates_dialog_title">Шаблоны фраз-обложек</string>
     <string name="invisible_default_template_dialog_title">Шаблон по умолчанию</string>
-    <string name="invisible_first_word_cover_title">Оставлять первое слово видимым</string>
-    <string name="invisible_first_word_cover_summary">Быстрый lock сохраняет первое слово и прячет всё сообщение невидимым хвостом сразу после него</string>
+    <string name="invisible_first_word_cover_title">Использовать первое слово как видимую обложку</string>
+    <string name="invisible_first_word_cover_summary">Быстрый lock сохраняет первое слово видимым и прячет все сообщение сразу после него</string>
     <string name="invisible_ghost_preview_format">%1$s</string>
     <string name="invisible_ghost_copy">Копировать</string>
     <string name="invisible_ghost_close">×</string>
@@ -118,7 +119,7 @@
     <string name="invisible_emoji_marker_title">Эмодзи-маркер</string>
     <string name="invisible_emoji_marker_summary">Необязательный эмодзи в начале зашифрованных сообщений</string>
     <string name="invisible_clipboard_popup_title">Показывать окно после decode из буфера</string>
-    <string name="invisible_clipboard_popup_summary">Когда клавиатура закрыта, скрытое сообщение из буфера открывается отдельным окном</string>
+    <string name="invisible_clipboard_popup_summary">Когда клавиатура закрыта, скрытое сообщение из буфера открывается в отдельном окне</string>
     <string name="invisible_emoji_marker_dialog_title">Эмодзи-маркер</string>
     <string name="invisible_emoji_picker_title">Выберите эмодзи-маркер</string>
     <string name="invisible_emoji_picker_clear">Очистить</string>
@@ -142,8 +143,8 @@
     <string name="ai_api_key_summary">Нужен для OpenAI, OpenRouter и Yandex</string>
     <string name="ai_model_title">Модель</string>
     <string name="ai_model_summary">Имя модели или model URI для переписывания</string>
-    <string name="ai_system_prompt_title">Системный промт</string>
-    <string name="ai_system_prompt_summary">Например: Отправляй сообщения в духе бизнеса</string>
+    <string name="ai_system_prompt_title">Системный промпт</string>
+    <string name="ai_system_prompt_summary">Например: Отправляй сообщения в деловом стиле</string>
     <string name="ai_status_rewriting">Переписываю сообщение через AI…</string>
     <string name="ai_status_sending">Отправляю переписанное сообщение…</string>
     <string name="ai_error_missing_model">Сначала укажи AI-модель</string>
@@ -151,7 +152,7 @@
     <string name="ai_error_missing_draft">AI не смог безопасно прочитать весь черновик</string>
     <string name="ai_error_request_failed">AI-запрос завершился ошибкой</string>
     <string name="ai_error_empty_response">AI вернул пустой ответ</string>
-    <string name="ai_error_draft_changed">Р§РµСЂРЅРѕРІРёРє РёР·РјРµРЅРёР»СЃСЏ РґРѕ Р·Р°РІРµСЂС€РµРЅРёСЏ РїРµСЂРµРїРёСЃС‹РІР°РЅРёСЏ</string>
+    <string name="ai_error_draft_changed">Черновик изменился во время переписывания</string>
     <string name="ai_action_rewrite_current">Переписать текущий черновик через AI</string>
     <string name="ai_status_rewritten">Черновик переписан через AI</string>
     <string name="ai_error_disabled">Сначала включи AI-переписывание</string>
@@ -164,4 +165,19 @@
 Если в тексте нет ошибок, верни его без изменений.
 Сохраняй исходный смысл и контекст.</string>
     <string name="settings_screen_ai">AI настройки</string>
+    <string name="settings_screen_adaptive_touch">EL Adaptive Touch</string>
+    <string name="adaptive_touch_enabled_title">EL Adaptive Touch</string>
+    <string name="adaptive_touch_enabled_summary">Локально изучает ваши смещения касаний и мягко подстраивает распознавание клавиш</string>
+    <string name="adaptive_touch_level_title">Сила адаптации</string>
+    <string name="adaptive_touch_map_title">Карта EL Adaptive Touch</string>
+    <string name="adaptive_touch_map_summary">Открыть визуальную карту обученных смещений и плотности касаний</string>
+    <string name="adaptive_touch_map_empty">Данных для карты пока нет. Немного попользуйтесь клавиатурой и вернитесь сюда.</string>
+    <string name="adaptive_touch_map_unavailable">Сейчас раскладка недоступна. Сначала откройте клавиатуру, затем вернитесь к карте.</string>
+    <string name="adaptive_touch_map_summary_format">%1$d обученных клавиш, %2$d касаний, средний |dx| %3$d px, средний |dy| %4$d px, раскладка: %5$s</string>
+    <string name="adaptive_touch_reset_title">Сбросить обученную модель касаний</string>
+    <string name="adaptive_touch_reset_summary">Удалить локально сохраненные смещения касаний и статистику конфликтов</string>
+    <string name="adaptive_touch_level_mild">Мягкий</string>
+    <string name="adaptive_touch_level_balanced">Сбалансированный</string>
+    <string name="adaptive_touch_level_strong">Сильный</string>
+    <string name="version_name">Версия 1.5.0</string>
 </resources>

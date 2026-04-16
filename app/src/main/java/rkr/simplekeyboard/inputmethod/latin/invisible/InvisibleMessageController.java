@@ -39,6 +39,12 @@ public final class InvisibleMessageController {
     private static final int MENU_EMOJI_MARKER = 5;
     private static final int MENU_PANIC = 6;
     private static final long PANIC_WINDOW_MILLIS = 1800L;
+    private static final String VISIBLE_TOKEN_START = "\u27e6e:";
+    private static final String VISIBLE_TOKEN_END = "\u27e7";
+    private static final String INVISIBLE_START = "\u2062\u2062";
+    private static final String INVISIBLE_END = "\u2062\u2063";
+    private static final String LEGACY_INVISIBLE_START = "\u2063\u2063";
+    private static final String LEGACY_INVISIBLE_END = "\u2063\u2062";
 
     private final LatinIME mLatinIme;
     private final InvisibleCodec mCodec;
@@ -505,6 +511,53 @@ public final class InvisibleMessageController {
         }
     }
 
+    public boolean tryDeleteEncodedMessageAtCursor() {
+        final RichInputConnection connection = mLatinIme.getRichInputConnection();
+        if (connection == null || connection.hasSelection() || !connection.hasCursorPosition()) {
+            return false;
+        }
+        final String directBeforeText = loadDirectTextBeforeCursor();
+        final String directAfterText = loadDirectTextAfterCursor();
+        final String directFieldText = (directBeforeText == null ? "" : directBeforeText)
+                + (directAfterText == null ? "" : directAfterText);
+        final boolean hasDirectField = !TextUtils.isEmpty(directFieldText);
+        final int fieldStart = hasDirectField
+                ? connection.getExpectedSelectionStart() - (directBeforeText == null ? 0 : directBeforeText.length())
+                : connection.getCachedTextStart();
+        final String fieldText = hasDirectField ? directFieldText : buildCachedFieldText(connection);
+        if (fieldStart < 0 || TextUtils.isEmpty(fieldText)) {
+            return false;
+        }
+        final int cursor = hasDirectField
+                ? (directBeforeText == null ? 0 : directBeforeText.length())
+                : connection.getExpectedSelectionStart() - fieldStart;
+        final DeleteRange wholeFieldRange = new DeleteRange(fieldStart, fieldStart + fieldText.length());
+        if (cursor == fieldText.length() && canDeleteEncodedRange(fieldText)) {
+            return deleteRange(connection, wholeFieldRange);
+        }
+        final DeleteRange lineRange = findCurrentLineRange(fieldText, cursor, fieldStart);
+        if (lineRange != null) {
+            final String lineText = fieldText.substring(lineRange.start - fieldStart,
+                    lineRange.end - fieldStart);
+            if (canDeleteEncodedRange(lineText)) {
+                return deleteRange(connection, lineRange);
+            }
+        }
+        final DeleteRange tokenRange = findVisibleTokenRange(fieldText, cursor, fieldStart);
+        if (tokenRange != null) {
+            return deleteRange(connection, tokenRange);
+        }
+        final DeleteRange hiddenRange = findHiddenPayloadRange(fieldText, cursor, fieldStart);
+        if (hiddenRange != null) {
+            return deleteRange(connection, hiddenRange);
+        }
+        final DeleteRange tailRange = findEncodedTailBeforeCursor(fieldText, cursor, fieldStart);
+        if (tailRange != null) {
+            return deleteRange(connection, tailRange);
+        }
+        return false;
+    }
+
     private InvisibleCodec.DecodeResult tryDecodeFromInputField(
             final RichInputConnection connection, final char[] passphrase) {
         return tryDecodeFromInputField(connection, passphrase,
@@ -686,6 +739,136 @@ public final class InvisibleMessageController {
         }
     }
 
+    private boolean canDeleteEncodedRange(final String text) {
+        final char[] passphrase = loadPassphrase();
+        if (passphrase == null || passphrase.length == 0 || TextUtils.isEmpty(text)) {
+            return false;
+        }
+        final InvisibleCodec.DecodeResult result = tryDecodeText(text, passphrase);
+        return result != null && !TextUtils.isEmpty(result.decodedText);
+    }
+
+    private static boolean deleteRange(final RichInputConnection connection,
+            final DeleteRange deleteRange) {
+        return deleteRange != null
+                && deleteRange.end > deleteRange.start
+                && connection.replaceTextRange(deleteRange.start, deleteRange.end, "");
+    }
+
+    private static DeleteRange findCurrentLineRange(final String fieldText, final int cursor,
+            final int fieldStart) {
+        if (TextUtils.isEmpty(fieldText) || cursor < 0 || cursor > fieldText.length()) {
+            return null;
+        }
+        int start = cursor;
+        while (start > 0) {
+            final char previous = fieldText.charAt(start - 1);
+            if (previous == '\n' || previous == '\r') {
+                break;
+            }
+            start--;
+        }
+        int end = cursor;
+        while (end < fieldText.length()) {
+            final char current = fieldText.charAt(end);
+            if (current == '\n' || current == '\r') {
+                break;
+            }
+            end++;
+        }
+        if (start == end) {
+            return null;
+        }
+        return new DeleteRange(fieldStart + start, fieldStart + end);
+    }
+
+    private static DeleteRange findVisibleTokenRange(final String fieldText, final int cursor,
+            final int fieldStart) {
+        final int start = fieldText.lastIndexOf(VISIBLE_TOKEN_START, Math.max(0, cursor));
+        if (start < 0) {
+            return null;
+        }
+        final int end = fieldText.indexOf(VISIBLE_TOKEN_END,
+                start + VISIBLE_TOKEN_START.length());
+        if (end < 0) {
+            return null;
+        }
+        final int tokenEnd = end + VISIBLE_TOKEN_END.length();
+        if (cursor < start || cursor > tokenEnd) {
+            return null;
+        }
+        int deleteStart = start;
+        if (deleteStart > 0 && Character.isWhitespace(fieldText.charAt(deleteStart - 1))) {
+            deleteStart--;
+        }
+        return new DeleteRange(fieldStart + deleteStart, fieldStart + tokenEnd);
+    }
+
+    private static DeleteRange findHiddenPayloadRange(final String fieldText, final int cursor,
+            final int fieldStart) {
+        DeleteRange range = findMarkedRange(fieldText, cursor, fieldStart,
+                INVISIBLE_START, INVISIBLE_END);
+        if (range != null) {
+            return range;
+        }
+        return findMarkedRange(fieldText, cursor, fieldStart,
+                LEGACY_INVISIBLE_START, LEGACY_INVISIBLE_END);
+    }
+
+    private static DeleteRange findMarkedRange(final String fieldText, final int cursor,
+            final int fieldStart, final String startMarker, final String endMarker) {
+        final int markerStart = fieldText.lastIndexOf(startMarker, Math.max(0, cursor));
+        if (markerStart < 0) {
+            return null;
+        }
+        final int markerEnd = fieldText.indexOf(endMarker, markerStart + startMarker.length());
+        if (markerEnd < 0) {
+            return null;
+        }
+        final int payloadEnd = markerEnd + endMarker.length();
+        if (cursor < markerStart || cursor > payloadEnd) {
+            return null;
+        }
+        int deleteStart = markerStart;
+        while (deleteStart > 0) {
+            final char previous = fieldText.charAt(deleteStart - 1);
+            if (previous == '\n' || previous == '\r') {
+                break;
+            }
+            deleteStart--;
+        }
+        return new DeleteRange(fieldStart + deleteStart, fieldStart + payloadEnd);
+    }
+
+    private static DeleteRange findEncodedTailBeforeCursor(final String fieldText, final int cursor,
+            final int fieldStart) {
+        if (TextUtils.isEmpty(fieldText) || cursor <= 0 || cursor > fieldText.length()) {
+            return null;
+        }
+        int index = cursor - 1;
+        if (!isEncodedTailCharacter(fieldText.charAt(index))) {
+            return null;
+        }
+        while (index >= 0 && isEncodedTailCharacter(fieldText.charAt(index))) {
+            index--;
+        }
+        final int deleteStart = index + 1;
+        if (deleteStart >= cursor) {
+            return null;
+        }
+        return new DeleteRange(fieldStart + deleteStart, fieldStart + cursor);
+    }
+
+    private static boolean isEncodedTailCharacter(final char ch) {
+        return ch == '\u2060'
+                || ch == '\u2061'
+                || ch == '\u2062'
+                || ch == '\u2063'
+                || ch == '\u200c'
+                || ch == '\u200d'
+                || ch == '\u00a0';
+    }
+
     private static void appendFingerprintPart(final StringBuilder builder, final String value) {
         if (TextUtils.isEmpty(value)) {
             return;
@@ -774,6 +957,16 @@ public final class InvisibleMessageController {
             return "";
         }
         return value.substring(Math.max(0, value.length() - maxChars));
+    }
+
+    private static final class DeleteRange {
+        final int start;
+        final int end;
+
+        DeleteRange(final int start, final int end) {
+            this.start = start;
+            this.end = end;
+        }
     }
 
     private InvisibleCodec.DecodeResult tryDecodeFromClipboard(final char[] passphrase) {

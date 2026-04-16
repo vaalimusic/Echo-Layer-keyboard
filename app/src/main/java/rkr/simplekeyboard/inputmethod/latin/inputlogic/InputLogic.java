@@ -321,6 +321,10 @@ public final class InputLogic {
                 ? InputTransaction.SHIFT_UPDATE_LATER : InputTransaction.SHIFT_UPDATE_NOW;
         inputTransaction.requireShiftUpdate(shiftUpdateKind);
 
+        if (!event.isKeyRepeat() && mLatinIME.tryDeleteEncodedMessageFast()) {
+            return;
+        }
+
         if (mConnection.hasSelection()) {
             mConnection.deleteSelectedText();
         } else {

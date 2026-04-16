@@ -50,6 +50,18 @@
         android:title="@string/delete_swipe"
         android:restrictionType="bool"
         android:defaultValue="false" />
+    <restriction
+        android:key="pref_adaptive_touch_enabled"
+        android:title="@string/adaptive_touch_enabled_title"
+        android:restrictionType="bool"
+        android:defaultValue="false" />
+    <restriction
+        android:key="pref_adaptive_touch_level"
+        android:title="@string/adaptive_touch_level_title"
+        android:restrictionType="choice"
+        android:entries="@array/adaptive_touch_level_entries"
+        android:entryValues="@array/adaptive_touch_level_values"
+        android:defaultValue="balanced" />
     <!-- settings_screen_key_press -->
     <restriction
         android:key="vibrate_on"

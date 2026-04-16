@@ -37,6 +37,7 @@
     <string name="settings_screen_theme">Theme</string>
     <string name="settings_screen_invisible">Invisible mode</string>
     <string name="settings_screen_ai">AI settings</string>
+    <string name="settings_screen_adaptive_touch">EL Adaptive Touch</string>
 
     <!-- Units abbreviation for the duration (milliseconds) [CHAR LIMIT=10] -->
     <string name="abbreviation_unit_milliseconds"><xliff:g id="MILLISECONDS">%s</xliff:g>ms</string>
@@ -169,6 +170,7 @@
     <string name="invisible_status_encoding">Encoding hidden message…</string>
     <string name="invisible_status_compressing">Compressing long message…</string>
     <string name="invisible_status_compact_mode">Switching to compact mode for safe sending…</string>
+    <string name="invisible_status_lock_armed">Lock armed. Tap again to encode.</string>
     <string name="invisible_ghost_preview_format">%1$s</string>
     <string name="invisible_ghost_copy">Copy</string>
     <string name="invisible_ghost_close">×</string>
@@ -228,4 +230,30 @@
     <string name="ai_error_request_failed">AI request failed</string>
     <string name="ai_error_empty_response">AI returned an empty message</string>
     <string name="ai_error_draft_changed">The draft changed before the rewrite finished</string>
+    <string name="adaptive_touch_enabled_title">EL Adaptive Touch</string>
+    <string name="adaptive_touch_enabled_summary">Learn your touch offsets locally and softly adjust key hit priority</string>
+    <string name="adaptive_touch_level_title">Adaptation strength</string>
+    <string name="adaptive_touch_map_title">EL Adaptive Touch map</string>
+    <string name="adaptive_touch_map_summary">Open a visual map of learned touch bias and density</string>
+    <string name="adaptive_touch_map_empty">No learned touch data yet. Use the keyboard for a while and come back here.</string>
+    <string name="adaptive_touch_map_unavailable">Keyboard layout is not available right now. Open the keyboard first, then return to this map.</string>
+    <string name="adaptive_touch_map_summary_format">%1$d learned keys, %2$d samples, avg |dx| %3$d px, avg |dy| %4$d px, layout: %5$s</string>
+    <string name="adaptive_touch_reset_title">Reset learned touch model</string>
+    <string name="adaptive_touch_reset_summary">Delete all locally learned touch offsets and conflict statistics</string>
+    <string name="adaptive_touch_level_mild">Mild</string>
+    <string name="adaptive_touch_level_balanced">Balanced</string>
+    <string name="adaptive_touch_level_strong">Strong</string>
+
+    <string-array name="adaptive_touch_level_entries">
+        <item>@string/adaptive_touch_level_mild</item>
+        <item>@string/adaptive_touch_level_balanced</item>
+        <item>@string/adaptive_touch_level_strong</item>
+    </string-array>
+
+    <string-array name="adaptive_touch_level_values" translatable="false">
+        <item>mild</item>
+        <item>balanced</item>
+        <item>strong</item>
+    </string-array>
+    <string name="version_name">Version 1.5.0</string>
 </resources>

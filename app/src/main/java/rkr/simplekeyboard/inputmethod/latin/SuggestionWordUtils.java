@@ -57,6 +57,29 @@ final class SuggestionWordUtils {
         return new WordContext(start, end, word);
     }
 
+    static WordContext getPreviousWord(final String text, final int endExclusive,
+            final int cachedTextStart) {
+        if (text == null || text.isEmpty() || cachedTextStart < 0) {
+            return null;
+        }
+        int end = Math.min(endExclusive, text.length());
+        while (end > 0 && !isWordCharacter(text.charAt(end - 1))) {
+            end--;
+        }
+        if (end <= 0) {
+            return null;
+        }
+        int start = end;
+        while (start > 0 && isWordCharacter(text.charAt(start - 1))) {
+            start--;
+        }
+        if (start == end) {
+            return null;
+        }
+        final String word = text.substring(start, end);
+        return new WordContext(cachedTextStart + start, cachedTextStart + end, word);
+    }
+
     static List<String> buildSuggestions(final String word) {
         final LinkedHashSet<String> suggestions = new LinkedHashSet<>();
         if (word == null || word.isEmpty()) {

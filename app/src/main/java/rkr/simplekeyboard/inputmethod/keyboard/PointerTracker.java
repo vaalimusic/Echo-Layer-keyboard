@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -726,7 +727,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
                 && (currentKey.getCode() == currentRepeatingKeyCode) && !isInDraggingFinger) {
             return;
         }
-        detectAndSendKey(currentKey, mKeyX, mKeyY);
+        detectAndSendKey(currentKey, x, y);
         if (isInSlidingKeyInput) {
             callListenerOnFinishSlidingInput();
         }
@@ -882,6 +883,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element {
 
         final int code = key.getCode();
         callListenerOnCodeInput(key, code, x, y, false /* isKeyRepeat */);
+        mKeyDetector.recordAcceptedKey(sDrawingProxy instanceof View ? ((View) sDrawingProxy).getContext() : null,
+                key, x, y, false /* autoCorrected */);
         callListenerOnRelease(key, code, false /* withSliding */);
     }
 

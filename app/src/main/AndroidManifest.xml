@@ -60,6 +60,12 @@
             android:excludeFromRecents="true"
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.Alert" />
 
+        <activity
+            android:name=".latin.AdaptiveTouchMapActivity"
+            android:exported="false"
+            android:label="@string/adaptive_touch_map_title"
+            android:theme="@android:style/Theme.DeviceDefault.Light" />
+
         <receiver
             android:name=".latin.SystemBroadcastReceiver"
             android:exported="false">

@@ -36,10 +36,18 @@
         android:fragment="rkr.simplekeyboard.inputmethod.latin.settings.AiSettingsFragment"
         android:title="@string/settings_screen_ai"
         android:key="screen_ai" />
+    <PreferenceScreen
+        android:fragment="rkr.simplekeyboard.inputmethod.latin.settings.AdaptiveTouchSettingsFragment"
+        android:title="@string/settings_screen_adaptive_touch"
+        android:key="screen_adaptive_touch" />
     <Preference
         android:title="@string/privacy_policy"
         android:key="privacy_policy" />
     <Preference
         android:title="@string/license"
         android:key="license" />
+    <Preference
+        android:title="@string/version_name"
+        android:key="version"
+        android:enabled="false" />
 </PreferenceScreen>
