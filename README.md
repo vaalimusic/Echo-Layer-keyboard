@@ -59,6 +59,4 @@ Echo Layer is a privacy-focused Android keyboard built on top of the AOSP LatinI
 
 ## License
 
-Echo Layer is distributed under the Apache License 2.0.
-
-Parts of the keyboard are derived from AOSP LatinIME.
+GPL-3.0 license
