@@ -1,0 +1,12 @@
+Echo Layer
+
+Copyright (C) 2026 Arthur Valiev
+
+GPL-3.0 license
+
+This application is distributed under the terms of the GNU General Public License v3.0.
+
+You may redistribute and/or modify this software under the terms of the GPL-3.0 license.
+
+Full license text:
+https://www.gnu.org/licenses/gpl-3.0.html

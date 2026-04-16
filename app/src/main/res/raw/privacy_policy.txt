@@ -1,0 +1,19 @@
+Echo Layer Privacy Policy
+
+We do not collect analytics, ads identifiers, or telemetry.
+
+The keyboard operates locally on-device.
+
+Invisible messaging features process your text locally on the device.
+
+AI rewriting is optional. If you enable it, the current draft text and your configured system prompt are sent only to the AI provider you selected:
+- OpenAI
+- OpenRouter
+- Ollama
+- Yandex
+
+Echo Layer does not add its own cloud service between you and the configured provider.
+
+Clipboard-related hidden message detection only works with text available to the keyboard or copied by the user.
+
+If you use a remote AI provider, that provider's own privacy policy and retention rules apply to requests you send through it.

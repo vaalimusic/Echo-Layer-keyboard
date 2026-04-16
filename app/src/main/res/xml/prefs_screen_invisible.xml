@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/settings_screen_invisible">
+    <SwitchPreference
+        android:key="pref_invisible_feature_enabled"
+        android:title="@string/invisible_feature_title"
+        android:summary="@string/invisible_feature_summary"
+        android:defaultValue="true" />
+    <ListPreference
+        android:key="pref_invisible_mode"
+        android:title="@string/invisible_mode_title"
+        android:entries="@array/invisible_mode_entries"
+        android:entryValues="@array/invisible_mode_values"
+        android:defaultValue="auto" />
+    <Preference
+        android:key="pref_invisible_passphrase"
+        android:title="@string/invisible_passphrase_title" />
+    <Preference
+        android:key="pref_invisible_default_template"
+        android:title="@string/invisible_default_template_title"
+        android:summary="@string/invisible_default_template_summary" />
+    <Preference
+        android:key="pref_invisible_cover_templates"
+        android:title="@string/invisible_cover_templates_title"
+        android:summary="@string/invisible_cover_templates_summary" />
+    <SwitchPreference
+        android:key="pref_invisible_panic_gesture"
+        android:title="@string/invisible_panic_title"
+        android:summary="@string/invisible_panic_summary"
+        android:defaultValue="false" />
+    <SwitchPreference
+        android:key="pref_invisible_show_toasts"
+        android:title="@string/invisible_show_toasts_title"
+        android:defaultValue="true" />
+    <SwitchPreference
+        android:key="pref_invisible_prefer_cover"
+        android:title="@string/invisible_prefer_cover_title"
+        android:defaultValue="false" />
+    <SwitchPreference
+        android:key="pref_invisible_first_word_cover"
+        android:title="@string/invisible_first_word_cover_title"
+        android:summary="@string/invisible_first_word_cover_summary"
+        android:defaultValue="false" />
+    <Preference
+        android:key="pref_invisible_emoji_marker"
+        android:title="@string/invisible_emoji_marker_title"
+        android:summary="@string/invisible_emoji_marker_summary" />
+    <SwitchPreference
+        android:key="pref_invisible_clipboard_popup"
+        android:title="@string/invisible_clipboard_popup_title"
+        android:summary="@string/invisible_clipboard_popup_summary"
+        android:defaultValue="false" />
+</PreferenceScreen>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="pref_ai_enabled"
+        android:title="@string/ai_enabled_title"
+        android:summary="@string/ai_enabled_summary"
+        android:defaultValue="false" />
+    <SwitchPreference
+        android:key="pref_ai_rewrite_on_send"
+        android:title="@string/ai_rewrite_on_send_title"
+        android:summary="@string/ai_rewrite_on_send_summary"
+        android:defaultValue="false" />
+    <ListPreference
+        android:key="pref_ai_provider"
+        android:title="@string/ai_provider_title"
+        android:entries="@array/ai_provider_entries"
+        android:entryValues="@array/ai_provider_values"
+        android:defaultValue="openai" />
+    <Preference
+        android:key="pref_ai_base_url"
+        android:title="@string/ai_base_url_title"
+        android:summary="@string/ai_base_url_summary" />
+    <Preference
+        android:key="pref_ai_api_key"
+        android:title="@string/ai_api_key_title"
+        android:summary="@string/ai_api_key_summary" />
+    <Preference
+        android:key="pref_ai_model"
+        android:title="@string/ai_model_title"
+        android:summary="@string/ai_model_summary" />
+    <Preference
+        android:key="pref_ai_system_prompt"
+        android:title="@string/ai_system_prompt_title"
+        android:summary="@string/ai_system_prompt_summary" />
+</PreferenceScreen>
